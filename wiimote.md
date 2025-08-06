@@ -1,3 +1,6 @@
+---
+---
+
 # Connecting a Wii remote
 
 **Note:**
