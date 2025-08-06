@@ -10,5 +10,4 @@ This is the main page of our documentation.
 
 * [About the Project](about.md)
 * [Getting Started](getting-started.md)
-* [Wiimote Guide](wiimote.md)
-
+* [Wiimote Guide]({{site.baseurl}}/wiimote/)
