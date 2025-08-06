@@ -1,3 +1,7 @@
+---
+layout: default
+---
+
 # Using Moonlight Game Streaming from an AtGames Device
 
 These directions permit the user to run PC based
