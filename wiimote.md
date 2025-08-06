@@ -1,4 +1,5 @@
 ---
+layout: default
 ---
 
 # Connecting a Wii remote
