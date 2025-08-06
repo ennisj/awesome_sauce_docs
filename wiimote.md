@@ -1,5 +1,7 @@
 ---
 layout: default
+title: Wiimote Guide
+nav_order: 8
 ---
 
 # Connecting a Wii remote

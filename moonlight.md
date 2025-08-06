@@ -1,5 +1,7 @@
 ---
 layout: default
+title: Moonlight Guide
+nav_order: 10
 ---
 
 # Using Moonlight Game Streaming from an AtGames Device
