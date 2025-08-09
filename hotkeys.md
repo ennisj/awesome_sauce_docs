@@ -16,11 +16,11 @@ Some of the most used defaults are:
 
 | Control   | Function |
 |:----------|:---------|
-|`MENU` button | Enter context menu. |
+|`MENU`{: .label } | Enter context menu. |
 |`Y` | Add to favorites. |
 |`B` | Remove from favorites. |
 |`X` | Cycle through playlists. |
-|`C`/`Z` | Go up/down letters. |
+|`C`{: .label }/`Z`{: .label } | Go up/down letters. |
 |`A`/`Start` | Select. |
 |`REWIND` | Go back one level of game collections. |
 
