@@ -4,7 +4,7 @@ title: Wiimote Guide
 nav_order: 8
 ---
 
-# Connecting a Wii remote
+# Wiimote Guide
 {: .no_toc }
 
 ## Table of contents
@@ -14,6 +14,8 @@ nav_order: 8
 {:toc}
 
 ---
+
+# Connecting a Wii remote
 
 {: .note }
 Please do ***not*** attempt to pair the Wii remote in the stock UI.
@@ -55,12 +57,16 @@ The **Controller** menu will look like the following after having successfully c
 ### Wii Remote Lightgun Mode
 
 - **On**:
+  {: .label }
+
   IR tracking data from the Wii remote camera is used as mouse cursor input.
   Button **A** acts as a mouse left click.
   Button **B** acts as a mouse right click.
   If a nunchuk is connected, button **Z** and **C** on the nunchuk act as mouse left/right clicks as well.
 
 - **Off**:
+  {: .label }
+
   The orientation sensor data is used as mouse input.
   "Pitch" is used as mouse X input.
   "Roll" is used as mouse Y input.
