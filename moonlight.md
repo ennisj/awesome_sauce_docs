@@ -16,8 +16,8 @@ nav_order: 10
 ---
 
 These directions permit the user to run PC based
-content on the AtGames machine over a network. There is a [Quick Start](#Quick Start) for
-experienced users and [Detailed Instructions](#Detailed Instructions) for others. This is possible
+content on the AtGames machine over a network. There is a [Quick Start](#quick-start) for
+experienced users and [Detailed Instructions](#detailed-instructions) for others. This is possible
 using a non-Windows machine, but these instructions assume Windows. This
 release is beta/experimental and it should be expected there will
 be glitches.
@@ -79,23 +79,23 @@ apps/games.
 
 1. On the PC, in your web browser, enter `https://localhost:47990`.
 
-  - Note that you will see security warnings. You will need to
-    accept/bypass these as the installer uses a self-signed security
-    certiﬁcate.
+   - Note that you will see security warnings. You will need to
+     accept/bypass these as the installer uses a self-signed security
+     certiﬁcate.
   
-  - On first run, you will establish your own password for the instance. **DO NOT LOSE THIS**.
-    Enter and verify the User and Pass of your choosing and click Login.
+   - On first run, you will establish your own password for the instance. **DO NOT LOSE THIS**.
+     Enter and verify the User and Pass of your choosing and click Login.
 
-    ![user_pass](images/sunshine_login.png)
+     ![user_pass](images/sunshine_login.png)
 
-  - The page will reload as below (note version number may be different).
+   - The page will reload as below (note version number may be different).
 
-    ![hello](images/sunshine_hello.png)
+     ![hello](images/sunshine_hello.png)
 
-  - Click on PIN in the top menu bar and enter the PIN from the machine.
+   - Click on PIN in the top menu bar and enter the PIN from the machine.
 
-  The machine and PC are now paired and you should not need to take these
-  pairing steps again.
+   The machine and PC are now paired and you should not need to take these
+   pairing steps again.
 
 1. On the machine, select the `Update` menu item to see
    available apps from the PC and launch them.
@@ -112,10 +112,10 @@ Sunshine service where the executable for the application is located on the PC.
 
 1. At a minimum, two fields must be completed.
 
-  - **Application Name**: How the user desires the application to be shown on
-    the machine -- e.g. "EpicGames"
+   - **Application Name**: How the user desires the application to be shown on
+     the machine -- e.g. "EpicGames"
 
-  - **Command**: The path to the application's executable on the PC, e.g. `G:\EpicGames\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe`.
+   - **Command**: The path to the application's executable on the PC, e.g. `G:\EpicGames\Launcher\Portal\Binaries\Win32\EpicGamesLauncher.exe`.
 
 1. After adding apps in the Sunshine service, you will need to run the
    `Update` command in the Moonlight menu again to see them.
@@ -128,23 +128,23 @@ Sunshine service where the executable for the application is located on the PC.
 1. When using an application on the machine, to toggle between
    **mouse emulation mode** and **controller**, hold **P1 Start**.
 
-  - When in mouse emulation mode, **A** is **left click** and **B** is **right click**.
-    Trackball moves the mouse pointer.
+   - When in mouse emulation mode, **A** is **left click** and **B** is **right click**.
+     Trackball moves the mouse pointer.
 
-  - Unfortunately, at the moment, there is no way to display when mouse
-    emulation mode is active and it can be a little confusing which
-    mode you are in so some patience is necessary.
+   - Unfortunately, at the moment, there is no way to display when mouse
+     emulation mode is active and it can be a little confusing which
+     mode you are in so some patience is necessary.
 
 1. If there are no apps showing on the machine after refreshing, check the
    PC to be sure the Sunshine service is running.
 
-  - In the Windows search bar, type `Services.msc`.
+   - In the Windows search bar, type `Services.msc`.
 
-  - Scroll down to SunshineService.
+   - Scroll down to SunshineService.
 
-    - If it is not running, Start it.
+     - If it is not running, Start it.
 
-    - If it is running, restart it to try to correct the issue.
+     - If it is running, restart it to try to correct the issue.
 
 1. Exiting the game normally should drop you back to the Moonlight interface.
    To force exit the streaming session, press **R1+SELECT+START**(**Z+REWIND+P1 START**).
