@@ -5,6 +5,15 @@ nav_order: 8
 ---
 
 # Connecting a Wii remote
+{: .no_toc }
+
+## Table of contents
+{: .no_toc .text-delta }
+
+1. TOC
+{:toc}
+
+---
 
 {: .note }
 Please do ***not*** attempt to pair the Wii remote in the stock UI.
