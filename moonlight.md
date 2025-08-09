@@ -60,7 +60,7 @@ apps/games.
 1. With your USB drive in your PC, navigate to the
    folder containing the file `moonlight.conf`, and open `moponlight.conf` in a text editor.
    - Find the line:
-     ```shell
+     ```ini
      #address = 1.2.3.4
      ```
      and edit to read:
@@ -141,9 +141,7 @@ Sunshine service where the executable for the application is located on the PC.
    - In the Windows search bar, type `Services.msc`.
 
    - Scroll down to SunshineService.
-
      - If it is not running, Start it.
-
      - If it is running, restart it to try to correct the issue.
 
 1. Exiting the game normally should drop you back to the Moonlight interface.
