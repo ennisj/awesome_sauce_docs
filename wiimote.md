@@ -22,9 +22,9 @@ If you've already paired it in the stock UI, please remove the pairing before pr
 
 ## Steps
 
-1. Bring up the RetroFE context menu (by pressing the MENU button).
-   Switch to the **Controller** tab (using Z/C buttons).
-   There is a **Connect Wii Remotes** menu item on that tab.
+1. Bring up the RetroFE context menu (by pressing the {% label "MENU" %} button).
+   Switch to the {% label Controller %} tab (using Z/C buttons).
+   There is a {% label "Connect Wii Remotes" %} menu item on that tab.
    Do not press it yet.
 ![controller_menu](images/controller_menu.png)
 
