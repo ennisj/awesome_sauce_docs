@@ -23,12 +23,15 @@ If you've already paired it in the stock UI, please remove the pairing before pr
 ## Steps
 
 1. Bring up the RetroFE context menu (by pressing the
-   MENU {: .label }
+   MENU
+   {: .label }
    button). Switch to the
-   Controller {: .label }
+   Controller
+   {: .label }
    tab (using Z/C buttons).
    There is a
-   Connect Wii Remotes {: .label }
+   Connect Wii Remotes
+   {: .label }
    menu item on that tab.
    Do not press it yet.
    ![controller_menu](images/controller_menu.png)
