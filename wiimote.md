@@ -6,8 +6,8 @@ nav_order: 8
 
 # Connecting a Wii remote
 
-**Note:**
-Please do not attempt to pair the Wii remote in the stock UI.
+{: .note }
+Please do ***not*** attempt to pair the Wii remote in the stock UI.
 Doing so will only interfere with connecting it from RetroFE.
 If you've already paired it in the stock UI, please remove the pairing before proceeding.
 
@@ -19,20 +19,21 @@ If you've already paired it in the stock UI, please remove the pairing before pr
    Do not press it yet.
 ![controller_menu](images/controller_menu.png)
 
-3. On the Wii remote, press button 1 and 2 together to put it into Bluetooth connection mode.
+1. On the Wii remote, press button 1 and 2 together to put it into Bluetooth connection mode.
    The LEDs on the Wii remote should start flashing.
    
-   **Note for third party Wii remotes:**
-   It's been noticed that third party Wii remotes typically have a shorter time period staying in the BT connection mode,
-   which is not enough for the software to finish the handshake process.
-   If that's the case, try pressing and holding buttons 1 and 2 during the connection process.
-   If that still doesn't work, try pressing the red button under the battery cover.
+   {: .note-title }
+   > Note for third party Wii remotes
+   >
+   > It's been noticed that third party Wii remotes typically have a shorter time period staying in the BT connection mode,
+   > which is not enough for the software to finish the handshake process.
+   > If that's the case, try holding and do not let go buttons 1 and 2 during the connection process.
+   > If that still doesn't work, try pressing the red button under the battery cover.
 
-5. Within the RetroFE menu, press **Connect Wii Remotes**.
+1. Within the RetroFE menu, press **Connect Wii Remotes**.
    Once the connection succeeds, the Wii remote will rumble once and one of the four LEDs on the Wii remote lights up to indicate the index of that remote.
 
    If the connection times out, try repeating steps 2 and 3.
-
 
 # Using the Wii remote
 
@@ -74,10 +75,11 @@ This section lists all currently connected mouse devices (including lightguns, t
 
 Reordering the list works the same way as for the **Game Controllers** list.
 
-Unlike the **Game Controllers** list, by default in RetroArch, all players will use the first mouse device.
+By default, when entering RetroArch, the first mouse is assigned to player 1, the second mouse is assigned to player 2, and so on.
 
 This can be changed in the RetroArch menu, under **Settings->Input->RetroPad Bindings->Player 1/2/3/4 Controls->Mouse Index**.
-So it is possible to let player 1 use the first mouse, and player 2 use the second mouse, and so on (such as in a two-player lightgun game).
+So it is possible to let player 1 and player 2 both use the same mouse (some spinner games use the X axis of the mouse for player 1,
+and Y axis for player 2).
 
 ## Setting up the IR LEDs for lightgun games
 
