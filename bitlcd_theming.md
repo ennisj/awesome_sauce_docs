@@ -9,7 +9,34 @@ nav_order: 21
 This guide walks through creating marquee themes for BitLCD, from a
 minimal JSON-only bezel to Lua-scripted procedural animation.
 
+> **Choose your path**
+>
+> - **New or casual theme author:** Start with **Quick start**, then read **Scenes and layers**, **Bindings**, **Text layers**, **Transitions**, and the **Cookbook**. You can build useful themes without Lua.
+> - **Intermediate author:** Add **Events**, **Timelines**, **Video playback**, **Sequences**, **Idle and attract mode**, and **Inheritance** as needed.
+> - **Advanced author:** Continue into **Lua scripting**, **Procedural animators**, **Animation limits**, and **Thread model**.
+>
+> **How to use this guide:** examples are intended to be copyable starting points, while the tables and notes document the exact behavior, defaults, limits, and fallback rules. Advanced details have not been removed; the guide is organized so you can stop once you have the features you need.
+
+### At a glance
+
+| If you want to… | Start here |
+|---|---|
+| Make a basic bezel around game media | [Quick start](#quick-start) |
+| Position images, video, and text | [Scenes and layers](#scenes-and-layers) |
+| Insert game/title/media data | [Bindings](#bindings) |
+| Animate without Lua | [Timelines](#timelines) |
+| Control video looping, clips, or multiple decoders | [Video playback](#video-playback) |
+| Chain screens or wait for video completion | [Sequences](#sequences) |
+| Customize individual games | [Quick start](#quick-start) — per-game manifests |
+| Reuse and modify another theme | [Inheritance](#inheritance) |
+| Add logic, timers, or state | [Lua scripting](#lua-scripting) |
+| Add physics-style procedural motion | [Procedural animators](#procedural-animators) |
+| Understand performance/threading behavior | [Animation limits](#animation-limits) and [Thread model](#thread-model) |
+
+
 ## Quick start
+
+> **Recommended for everyone.** This section gets a working theme on-screen first, then explains per-game manifests and theme-selection fallback behavior.
 
 A theme is a folder on your USB drive:
 
@@ -124,7 +151,21 @@ drives in this order:
 4. A theme named `classic`.
 5. The built-in classic presentation.
 
+
+### Quick terminology
+
+- **Theme** — a package under `bitlcd/themes/` that defines scenes, events, and optionally Lua behavior.
+- **Scene** — a background plus an ordered set of visual layers.
+- **Layer** — one drawable item such as a color, image, media item, video, or text.
+- **Binding** — a string such as `$title` or `$media.video` that is replaced with current presentation data.
+- **Manifest** — per-game JSON that can select a theme and explicitly define media slots.
+- **Sequence** — an ordered chain of scenes whose steps advance by time or events.
+- **Timeline** — declarative keyframe animation evaluated in C++.
+- **Procedural animator** — Lua-driven animation updated at a declared simulation rate.
+
 ## Scenes and layers
+
+> **Core concept.** A scene is what BitLCD presents; layers are drawn in order to build that scene.
 
 A scene has a background color and an ordered list of layers. Later
 layers draw on top of earlier ones.
@@ -220,6 +261,8 @@ opaque). A layer's `opacity` multiplies its color or texture alpha.
 
 ## Bindings
 
+> **Core concept.** Bindings connect a reusable theme to the currently selected game's title, media, and other presentation data.
+
 String values starting with `$` are replaced with data from the current
 presentation:
 
@@ -257,6 +300,8 @@ them dynamically. Layers using optional named media should set
 
 ## Text layers
 
+> **Common customization.** Use this section for fonts, wrapping, alignment, overflow, and multilingual fallback behavior.
+
 ```json
 {
   "id": "title",
@@ -292,6 +337,8 @@ fallback font covers CJK characters automatically.
 
 ## Transitions
 
+> **Optional polish.** Transitions animate the change from one scene to another.
+
 Transitions animate between the old scene and the new scene:
 
 ```json
@@ -303,6 +350,8 @@ Transitions animate between the old scene and the new scene:
 Available types: `cut` (instant), `fade`, `slide_left`, `slide_right`.
 
 ## Events
+
+> **Intermediate.** Events decide which scene or sequence should run in response to BitLCD activity.
 
 The `events` object maps presentation events to scenes or sequences:
 
@@ -343,6 +392,8 @@ them in order:
 | `reload` | Theme successfully reloaded |
 
 ## Timelines
+
+> **Intermediate animation, no Lua required.** Timelines animate layer properties on the render thread.
 
 Timelines animate layer properties over time. They run in C++ at the
 render frame rate without involving Lua.
@@ -454,6 +505,8 @@ You can set a static transform on a layer without a timeline:
 
 ## Video playback
 
+> **Intermediate.** Use explicit video layers when you need playback counts, looping, clips, random starts, or decoder sharing.
+
 ### Basic video
 
 ```json
@@ -554,6 +607,8 @@ share the ID.
 
 ## Sequences
 
+> **Intermediate.** Sequences coordinate multiple scenes over time or in response to playback events.
+
 Sequences chain scenes together. Map an event to a sequence instead of a
 scene:
 
@@ -631,6 +686,8 @@ when used directly and play a bounded number of times in a sequence.
 
 ## Idle and attract mode
 
+> **Optional behavior.** Configure what happens after inactivity and how attract mode cycles content.
+
 ```json
 {
   "idle": {
@@ -654,6 +711,8 @@ Attract mode cycles through content from ROM and/or drive sources.
 `order` is `sequential` or `shuffle`.
 
 ## Inheritance
+
+> **Useful for theme families.** Extend an existing theme and override only what changes.
 
 Extend an existing theme instead of copying it entirely:
 
@@ -701,6 +760,8 @@ control position:
 ```
 
 ## Lua scripting
+
+> **Advanced.** Lua is only needed for conditional logic, mutable state, timers, or behavior that declarative JSON cannot express.
 
 For themes that need conditional logic, state, timers, or procedural
 animation, add a `theme.lua` script.
@@ -846,6 +907,8 @@ limits. A script that exceeds its budget falls back to the manifest's
 declarative event mappings.
 
 ## Procedural animators
+
+> **Advanced animation.** Use this for smooth physics-based or continuously computed motion that keyframes cannot express.
 
 For smooth, physics-based motion that can't be expressed as keyframes,
 declare a procedural animator in the scene and implement it in Lua.
@@ -1016,6 +1079,8 @@ Translation and rotation add. Scale and opacity multiply.
 
 ## Animation limits
 
+> **Advanced / performance.** Procedural themes must declare their maximum animation demand so the device can validate them.
+
 Themes that use procedural animation must declare their maximum demand:
 
 ```json
@@ -1033,6 +1098,8 @@ The device profile caps each value. If an animator exceeds its budget,
 it keeps its last valid pose and is disabled after repeated failures.
 
 ## Cookbook
+
+> **Practical examples.** These complete patterns combine the features described above and are good starting points to modify.
 
 ### Bezel with fading title
 
@@ -1211,6 +1278,8 @@ return {
 ```
 
 ## Thread model
+
+> **Advanced debugging.** This explains where rendering, presentation work, and Lua execution happen.
 
 Understanding the thread model helps when debugging or writing advanced
 themes:
