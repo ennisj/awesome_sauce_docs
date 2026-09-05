@@ -9,4 +9,5 @@ nav_order: 1
 * [Wiimote Guide]({% link wiimote.md %})
 * [Moonlight Guide]({% link moonlight.md %})
 * [Frequently Used Hotkeys]({% link hotkeys.md %})
+* [BitLCD CFW Theming Guide]({% link bitlcd_theming.md %})
 
