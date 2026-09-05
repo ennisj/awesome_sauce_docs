@@ -1,3 +1,9 @@
+---
+layout: default
+title: BitLCD CFW Theming Guide
+nav_order: 21
+---
+
 # BitLCD theming guide
 
 This guide walks through creating marquee themes for BitLCD, from a
