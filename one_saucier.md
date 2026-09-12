@@ -176,6 +176,8 @@ land on the tab strip itself.
 
 ### Home
 
+![The Home screen](images/one_saucier_home.png)
+
 Home is the status page. Its tiles are:
 
 - **ARCHIVE.ORG ACCOUNT** — your email and a right-aligned *Signed in* /
@@ -197,6 +199,8 @@ Rows in every tile highlight and click, and `Z`{: .label } / `C`{: .label }
 page through the long ones.
 
 ### Catalog
+
+![The Catalog](images/one_saucier_catalog.png)
 
 The Catalog is the install screen. Components are grouped, in this order,
 under **One Saucier** (the app's own row), **Required Components**, **System
@@ -285,6 +289,8 @@ for them.
 Rebuilt in **v0.4.0**. Browse is no longer a list view — it is a full-screen,
 live OnesaUCE theme.
 
+![Browse, rendering an installed theme](images/one_saucier_browse.jpg)
+
 The Browse tab renders your installed library inside a real cabinet theme,
 drawn by a port of the same RetroFE layout engine OnesaUCE runs: wheels,
 per-selection artwork and video, the theme's own authored animations, fonts,
@@ -352,6 +358,8 @@ using and the collection you were in, rather than leaving you on a half-loaded
 screen.
 
 ### Settings
+
+![Settings](images/one_saucier_settings.png)
 
 Settings is a grid of cards — two per row in the horizontal layout, a single
 column in the vertical one — in this order:
