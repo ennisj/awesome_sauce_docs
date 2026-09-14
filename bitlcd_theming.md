@@ -7,15 +7,24 @@ nav_order: 21
 # BitLCD theming guide
 
 This guide walks through creating marquee themes for BitLCD, from a
-minimal JSON-only bezel to Lua-scripted procedural animation.
+minimal JSON-only bezel to Lua-scripted procedural animation. You do not
+need to use every feature: start with the quick start, stop when your theme
+does what you want, and return to the later sections when you are ready to
+add polish or custom behavior.
 
 > **Choose your path**
 >
-> - **New or casual theme author:** Start with **Quick start**, then read **Scenes and layers**, **Bindings**, **Text layers**, **Transitions**, and the **Cookbook**. You can build useful themes without Lua.
-> - **Intermediate author:** Add **Events**, **Timelines**, **Video playback**, **Sequences**, **Idle and attract mode**, and **Inheritance** as needed.
-> - **Advanced author:** Continue into **Lua scripting**, **Procedural animators**, **Animation limits**, and **Thread model**.
+> - **New or casual theme author:** Start with **Quick start**, then read
+>   **Scenes and layers**, **Bindings**, **Text layers**, **Transitions**,
+>   and the **Cookbook**. You can build useful themes without Lua.
+> - **Intermediate author:** Add **Events**, **Timelines**, **Video playback**,
+>   **Sequences**, **Idle and attract mode**, and **Inheritance** as needed.
+> - **Advanced author:** Continue into **Lua scripting**, **Procedural
+>   animators**, **Animation limits**, and **Thread model**.
 >
-> **How to use this guide:** examples are intended to be copyable starting points, while the tables and notes document the exact behavior, defaults, limits, and fallback rules. Advanced details have not been removed; the guide is organized so you can stop once you have the features you need.
+> **How to use this guide:** The examples are copyable starting points. The
+> tables and notes document exact behavior, defaults, limits, and fallback
+> rules, so the advanced reference is here when you need it.
 
 ### At a glance
 
@@ -23,20 +32,40 @@ minimal JSON-only bezel to Lua-scripted procedural animation.
 |---|---|
 | Make a basic bezel around game media | [Quick start](#quick-start) |
 | Position images, video, and text | [Scenes and layers](#scenes-and-layers) |
-| Insert game/title/media data | [Bindings](#bindings) |
+| Insert game, title, or media data | [Bindings](#bindings) |
 | Animate without Lua | [Timelines](#timelines) |
+| Create ambient effects such as snow or embers | [Particles](#particles) |
 | Control video looping, clips, or multiple decoders | [Video playback](#video-playback) |
 | Chain screens or wait for video completion | [Sequences](#sequences) |
 | Customize individual games | [Quick start](#quick-start) — per-game manifests |
 | Reuse and modify another theme | [Inheritance](#inheritance) |
 | Add logic, timers, or state | [Lua scripting](#lua-scripting) |
 | Add physics-style procedural motion | [Procedural animators](#procedural-animators) |
-| Understand performance/threading behavior | [Animation limits](#animation-limits) and [Thread model](#thread-model) |
+| Understand performance and threading behavior | [Animation limits](#animation-limits) and [Thread model](#thread-model) |
 
+### Quick terminology
+
+- **Theme** — A package under `bitlcd/themes/` that defines scenes, events,
+  and optionally Lua behavior.
+- **Scene** — A background plus an ordered set of visual layers.
+- **Layer** — One drawable item such as a color, image, media item, video,
+  text, or particle effect.
+- **Binding** — A string such as `$title` or `$media.video` that is replaced
+  with current presentation data.
+- **Manifest** — Per-game JSON that can select a theme and explicitly define
+  media slots.
+- **Sequence** — An ordered chain of scenes whose steps advance by time or
+  events.
+- **Timeline** — Declarative keyframe animation evaluated in C++.
+- **Procedural animator** — Lua-driven animation updated at a declared
+  simulation rate.
 
 ## Quick start
 
-> **Recommended for everyone.** This section gets a working theme on-screen first, then explains per-game manifests and theme-selection fallback behavior.
+> **Recommended for everyone.** This section gets a working theme on-screen
+> first, then explains per-game manifests and theme-selection fallback
+> behavior. You can copy the smallest example, change the theme ID, and
+> iterate from there.
 
 A theme is a folder on your USB drive:
 
@@ -78,9 +107,21 @@ Activate it in `<drive>/bitlcd/config.json`:
 ```json
 {
   "version": 2,
-  "theme": "my-theme"
+  "theme": "my-theme",
+  "media_index_max_kib": 1024
 }
 ```
+
+That is enough to get started: create the folders, copy in `theme.json`, and
+replace `my-theme` with the ID you chose in `config.json`. Add `frame.png` or
+`background.png` only when a layer actually refers to them. As you experiment,
+change one layer at a time; the examples below show the small pieces you can
+add to this working theme.
+
+> **A useful mental model:** `theme.json` describes what can be displayed,
+> `events` chooses what to display, and bindings such as `$title` and
+> `$media` fill in the currently selected game's data. Lua is optional and
+> adds decisions or state when JSON is not enough.
 
 For complete per-game control, put a manifest in a searchable content directory
 and keep its media in an underscore-prefixed directory:
@@ -137,6 +178,23 @@ Any directory whose name starts with `_` is excluded from recursive manifest
 and legacy-media discovery. Its files are reachable only through explicit
 manifest paths. The underscore rule applies at every nesting level.
 
+### Background media index
+
+Marqueed incrementally indexes legacy same-stem PNG, JPG, and MP4 files after
+two seconds with no protocol activity. It scans 64 directory entries at a time
+and immediately yields when activity resumes, so a newly selected game is
+never delayed by indexing. `media_index_max_kib` configures its total RAM
+admission budget, including both the catalog and an LRU of exact foreground
+resolutions. It defaults to 1024 KiB and accepts 64–8192 KiB. The 1 MiB default
+is deliberately small on the BitLCD's 256 MiB device, while leaving enough room
+to cache many frequently selected titles.
+
+If a full catalog exceeds the configured budget, its partial entries are
+discarded and the LRU continues to retain recently resolved titles. Thus large
+collections still speed up repeated selections without allowing the index to
+grow past its budget. Manifest-based titles are cached only after their normal
+resolver path completes, preserving explicit media-slot semantics.
+
 Theme IDs use lowercase letters, digits, dots, underscores, and hyphens.
 The first character must be a letter or digit.
 
@@ -151,21 +209,10 @@ drives in this order:
 4. A theme named `classic`.
 5. The built-in classic presentation.
 
-
-### Quick terminology
-
-- **Theme** — a package under `bitlcd/themes/` that defines scenes, events, and optionally Lua behavior.
-- **Scene** — a background plus an ordered set of visual layers.
-- **Layer** — one drawable item such as a color, image, media item, video, or text.
-- **Binding** — a string such as `$title` or `$media.video` that is replaced with current presentation data.
-- **Manifest** — per-game JSON that can select a theme and explicitly define media slots.
-- **Sequence** — an ordered chain of scenes whose steps advance by time or events.
-- **Timeline** — declarative keyframe animation evaluated in C++.
-- **Procedural animator** — Lua-driven animation updated at a declared simulation rate.
-
 ## Scenes and layers
 
-> **Core concept.** A scene is what BitLCD presents; layers are drawn in order to build that scene.
+> **Core concept.** A scene is what BitLCD presents; layers are drawn in
+> order to build that scene. Most visual changes begin here.
 
 A scene has a background color and an ordered list of layers. Later
 layers draw on top of earlier ones.
@@ -221,10 +268,12 @@ layers draw on top of earlier ones.
 | `media` | Title media resolved by marqueed (image or video) |
 | `video` | Explicit video with playback control |
 | `text` | Bound or literal UTF-8 text |
+| `particles` | Many small moving sprites: embers, snow, sparkles (see [Particles](#particles)) |
 
 Every layer has an `id`, `rect`, and `opacity` (0 to 1, default 1).
 Image, media, video, and text layers also support `transform` and
-`timeline`.
+`timeline`. Particle layers support `transform.translate` and timelines
+that animate `opacity` and `translate`.
 
 ### Geometry
 
@@ -261,7 +310,8 @@ opaque). A layer's `opacity` multiplies its color or texture alpha.
 
 ## Bindings
 
-> **Core concept.** Bindings connect a reusable theme to the currently selected game's title, media, and other presentation data.
+> **Core concept.** Bindings connect a reusable theme to the currently
+> selected game’s title, media, and other presentation data.
 
 String values starting with `$` are replaced with data from the current
 presentation:
@@ -300,7 +350,8 @@ them dynamically. Layers using optional named media should set
 
 ## Text layers
 
-> **Common customization.** Use this section for fonts, wrapping, alignment, overflow, and multilingual fallback behavior.
+> **Common customization.** Use this section for fonts, wrapping, alignment,
+> overflow, and multilingual fallback behavior.
 
 ```json
 {
@@ -319,8 +370,14 @@ them dynamically. Layers using optional named media should set
 }
 ```
 
-`font` is shorthand for a single-element `fonts` array. A built-in
-fallback font covers CJK characters automatically.
+`font` is shorthand for a single-element `fonts` array. Fonts are tried in order
+for each glyph; unreadable files are skipped. Relative paths resolve from the
+theme that declared the list, including inherited fonts. The default font and
+`MARQUEED_FALLBACK_FONTS` are appended to the chain. Supply a font covering CJK
+to display CJK text; classic bundles one for its boot and missing-media cards.
+Lua inline text supports
+the same properties. See [Font resolution](font-resolution.md) for configuration,
+examples, cache behavior, and Unicode/runtime limitations.
 
 **Anchors:** `top-left`, `top-center`, `top-right`, `center-left`,
 `center`, `center-right`, `bottom-left`, `bottom-center`, `bottom-right`.
@@ -337,7 +394,8 @@ fallback font covers CJK characters automatically.
 
 ## Transitions
 
-> **Optional polish.** Transitions animate the change from one scene to another.
+> **Optional polish.** Transitions animate the change from one scene to
+> another.
 
 Transitions animate between the old scene and the new scene:
 
@@ -351,7 +409,8 @@ Available types: `cut` (instant), `fade`, `slide_left`, `slide_right`.
 
 ## Events
 
-> **Intermediate.** Events decide which scene or sequence should run in response to BitLCD activity.
+> **Intermediate.** Events decide which scene or sequence runs in response
+> to BitLCD activity.
 
 The `events` object maps presentation events to scenes or sequences:
 
@@ -393,7 +452,8 @@ them in order:
 
 ## Timelines
 
-> **Intermediate animation, no Lua required.** Timelines animate layer properties on the render thread.
+> **Intermediate animation, no Lua required.** Timelines animate layer
+> properties on the render thread.
 
 Timelines animate layer properties over time. They run in C++ at the
 render frame rate without involving Lua.
@@ -503,9 +563,177 @@ You can set a static transform on a layer without a timeline:
 }
 ```
 
+## Particles
+
+> **Optional visual effects.** Particle layers are a convenient way to add
+> motion such as embers, snow, or sparkles without writing Lua.
+
+A `particles` layer draws many small sprites that spawn, move, and fade
+out on their own. Add the layer to a scene to turn the effect on; remove
+it to turn it off. No Lua is needed.
+
+```json
+{
+  "id": "embers",
+  "type": "particles",
+  "blend": "additive",
+  "max_particles": 320,
+  "emitter": {"shape": "line", "area": [0, 1.03, 1, 0], "rate": 45, "prewarm_ms": 6000},
+  "particle": {
+    "lifetime_ms": [3500, 6000],
+    "direction_deg": [262, 278],
+    "speed": [0.12, 0.3],
+    "gravity": [0, -0.03],
+    "drag": 0.2,
+    "size": [0.02, 0.055],
+    "wobble": {"amplitude": [0.01, 0.03], "hz": [0.2, 0.7]},
+    "color": [
+      {"at": 0.0, "color": "#FFD27A00"},
+      {"at": 0.12, "color": "#FFB04AE0"},
+      {"at": 1.0, "color": "#8A160000"}
+    ],
+    "scale": [{"at": 0, "value": 0.6}, {"at": 0.25, "value": 1}, {"at": 1, "value": 0.3}]
+  }
+}
+```
+
+This spawns 45 embers a second along a line just below the panel. They
+drift upward, sway, glow orange, and fade out. `prewarm_ms` starts the
+effect as if it had already been running for six seconds, so the panel
+is full from the first frame. The bundled `themes/embers` theme uses
+this layer.
+
+### Units
+
+- `rect` is where particles are drawn and clipped; it defaults to the
+  full panel.
+- Emitter `area` is `[x, y, w, h]` inside the layer rect, where `[0, 0]`
+  is its top-left corner and `[1, 1]` its bottom-right. Values slightly
+  outside 0–1 spawn particles just off screen.
+- `speed`, `gravity`, `size`, and wobble `amplitude` are in panel
+  heights, so `speed: 0.25` moves a quarter of the panel height per
+  second in every direction.
+- Angles are in degrees on screen: 0 points right, 90 down, 270 up.
+- Values marked *range* take a number or `[min, max]`. Each particle
+  picks its own value from the range when it spawns.
+
+### Layer properties
+
+| Property | Default | Description |
+|---|---|---|
+| `sprite` | `builtin:dot` | Image in the theme folder, `builtin:dot` (soft round glow), or `builtin:square` |
+| `blend` | `normal` | `normal` or `additive` (glows brighten what is behind them) |
+| `max_particles` | `128` | Most particles alive at once, 1–1024 |
+| `continuity` | `theme` | `theme` keeps the effect running across game selections; `scene` restarts it every time the scene appears |
+| `seed` | from `id` | Integer seed; the same seed always produces the same motion |
+| `required` | `false` | When `true`, a missing sprite rejects the scene instead of using `builtin:dot` |
+
+### Emitter
+
+| Property | Default | Description |
+|---|---|---|
+| `shape` | `rect` | `point` (at `area` x/y), `line` (along `area` width), or `rect` |
+| `area` | `[0, 0, 1, 1]` | Spawn region inside the layer rect |
+| `rate` | `0` | Particles spawned per second, up to 1000 |
+| `bursts` | `[]` | Up to 8 of `{"at_ms": 0, "count": 40, "repeat_ms": 0}`; `repeat_ms` of 0 fires once |
+| `prewarm_ms` | `0` | Start as if already running this long, up to 60000 |
+| `duration_ms` | `0` | Stop spawning after this long; 0 spawns forever |
+
+An emitter needs a `rate`, at least one burst, or both.
+
+### Particle
+
+| Property | Kind | Default | Description |
+|---|---|---|---|
+| `lifetime_ms` | range | `2000` | How long each particle lives, 50–60000 |
+| `direction_deg` | range | `270` | Starting heading |
+| `speed` | range | `0.1` | Starting speed |
+| `gravity` | `[x, y]` | `[0, 0]` | Constant acceleration; negative y pulls upward |
+| `drag` | number | `0` | Slows particles down over time, 0–20 |
+| `size` | range | `0.02` | Sprite width and height |
+| `rotation_deg` | range | `0` | Starting rotation |
+| `spin_deg_s` | range | `0` | Rotation speed |
+| `wobble` | object | none | Side-to-side sway: `amplitude` range and `hz` range |
+| `color` | stops | white | Up to 8 `{"at", "color"}` stops over the particle's life |
+| `scale` | stops | `1` | Up to 8 `{"at", "value"}` size multipliers over the particle's life |
+
+`at` runs from 0 when a particle spawns to 1 when it dies. Stops must be
+in increasing `at` order, and values in between are blended linearly.
+
+### Keeping effects running
+
+With the default `continuity: "theme"`, a particle layer continues
+smoothly when the frontend changes the selected game. That works when
+the next scene contains the same layer: same `id`, `rect`, `seed`,
+`max_particles`, `emitter`, and `particle` settings. Scenes may still
+use a different `sprite`, `blend`, `opacity`, or timeline. To keep snow
+falling on both the media and missing-media scenes, copy the identical
+layer into both.
+
+During a fade between two scenes that share the effect, it is drawn once
+at full strength so it doesn't dim halfway through.
+
+Use `continuity: "scene"` for effects tied to a moment, like a burst of
+sparks each time a game is selected:
+
+```json
+{
+  "id": "sparks",
+  "type": "particles",
+  "blend": "additive",
+  "continuity": "scene",
+  "max_particles": 48,
+  "emitter": {"shape": "line", "area": [0.35, 0.96, 0.3, 0], "bursts": [{"at_ms": 0, "count": 40}]},
+  "particle": {"lifetime_ms": [600, 1100], "direction_deg": [210, 330], "speed": [0.4, 0.9],
+               "gravity": [0, 0.8], "drag": 1.2, "size": [0.016, 0.032]}
+}
+```
+
+### Turning an inherited effect off or down
+
+A theme that `extends` another can remove its particle layer:
+
+```json
+{"id": "embers", "remove": true}
+```
+
+Or retune it without repeating everything. `emitter` and `particle`
+merge key by key, while arrays such as `color`, `scale`, and `bursts`
+are replaced as a whole:
+
+```json
+{"id": "embers", "emitter": {"rate": 20}, "opacity": 0.6}
+```
+
+### Limits
+
+A scene may have up to 4 particle layers, with at most 1500
+`max_particles` in total. A theme over these limits fails to load and
+names the offending layer:
+
+```text
+scenes.media.layers[1] (embers): emitter.rate must be between 0 and 1000
+```
+
+If `rate × longest lifetime` needs more particles than `max_particles`,
+spawns are skipped while the pool is full and the effect looks thinner.
+Raise `max_particles` or lower `rate`.
+
+Large, overlapping, see-through sprites cost more GPU time than many
+small ones, so prefer small sizes for dense effects.
+
+### Lua
+
+Lua inline scenes can return `type = "particles"` layers with the same
+fields as JSON. An invalid particle layer rejects that inline scene, and
+the manifest's event mapping is used instead. A procedural animator may
+target a particle layer's `translation` and `opacity`, for example to
+make a whole snowfield sway with the wind.
+
 ## Video playback
 
-> **Intermediate.** Use explicit video layers when you need playback counts, looping, clips, random starts, or decoder sharing.
+> **Intermediate.** Use explicit video layers when you need playback counts,
+> looping, clips, random starts, or decoder sharing.
 
 ### Basic video
 
@@ -607,7 +835,8 @@ share the ID.
 
 ## Sequences
 
-> **Intermediate.** Sequences coordinate multiple scenes over time or in response to playback events.
+> **Intermediate.** Sequences coordinate multiple scenes over time or in
+> response to playback events.
 
 Sequences chain scenes together. Map an event to a sequence instead of a
 scene:
@@ -686,7 +915,8 @@ when used directly and play a bounded number of times in a sequence.
 
 ## Idle and attract mode
 
-> **Optional behavior.** Configure what happens after inactivity and how attract mode cycles content.
+> **Optional behavior.** Configure what happens after inactivity and how
+> attract mode cycles through content.
 
 ```json
 {
@@ -712,7 +942,8 @@ Attract mode cycles through content from ROM and/or drive sources.
 
 ## Inheritance
 
-> **Useful for theme families.** Extend an existing theme and override only what changes.
+> **Useful for theme families.** Extend an existing theme and override only
+> what changes.
 
 Extend an existing theme instead of copying it entirely:
 
@@ -761,7 +992,8 @@ control position:
 
 ## Lua scripting
 
-> **Advanced.** Lua is only needed for conditional logic, mutable state, timers, or behavior that declarative JSON cannot express.
+> **Advanced.** Lua is useful when declarative scenes and timelines are not
+> enough—for example, for custom logic, timers, state, or procedural motion.
 
 For themes that need conditional logic, state, timers, or procedural
 animation, add a `theme.lua` script.
@@ -908,7 +1140,8 @@ declarative event mappings.
 
 ## Procedural animators
 
-> **Advanced animation.** Use this for smooth physics-based or continuously computed motion that keyframes cannot express.
+> **Advanced motion.** Procedural animators provide physics-style or
+> simulation-driven movement from Lua at a declared update rate.
 
 For smooth, physics-based motion that can't be expressed as keyframes,
 declare a procedural animator in the scene and implement it in Lua.
@@ -1079,7 +1312,8 @@ Translation and rotation add. Scale and opacity multiply.
 
 ## Animation limits
 
-> **Advanced / performance.** Procedural themes must declare their maximum animation demand so the device can validate them.
+> **Reference and troubleshooting.** Check these limits when a theme works
+> in a simple test but is rejected or becomes too expensive on the device.
 
 Themes that use procedural animation must declare their maximum demand:
 
@@ -1099,7 +1333,8 @@ it keeps its last valid pose and is disabled after repeated failures.
 
 ## Cookbook
 
-> **Practical examples.** These complete patterns combine the features described above and are good starting points to modify.
+> **Copyable recipes.** These examples combine the individual features into
+> common theme patterns.
 
 ### Bezel with fading title
 
@@ -1279,7 +1514,8 @@ return {
 
 ## Thread model
 
-> **Advanced debugging.** This explains where rendering, presentation work, and Lua execution happen.
+> **Advanced reference.** This explains where animation and Lua work runs,
+> which is useful when diagnosing timing or performance behavior.
 
 Understanding the thread model helps when debugging or writing advanced
 themes:
